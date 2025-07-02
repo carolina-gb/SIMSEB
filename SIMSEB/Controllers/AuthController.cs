@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SIMSEB.Application.DTOs.Inbound;
+using SIMSEB.Application.DTOs.Outbound.Response;
 using SIMSEB.Application.Interfaces.Auth;
 
 namespace SIMSEB.API.Controllers
@@ -25,7 +26,12 @@ namespace SIMSEB.API.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                return Unauthorized(new { message = "Credenciales inválidas." });
+                return Unauthorized(new GeneralResponse<object>
+                {
+                    Code = 401,
+                    Message = "Credenciales inválidas",
+                    Data = null
+                });
             }
         }
     }

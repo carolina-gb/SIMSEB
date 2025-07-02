@@ -8,7 +8,7 @@ namespace SIMSEB.Application.DTOs.Inbound
 {
     public class LoginRequestDto
     {
-        public string Email { get; set; }
+        public string Input { get; set; }  // Email o username
         public string Password { get; set; }
     }
 }
