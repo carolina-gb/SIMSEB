@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SIMSEB.Application.Interfaces.Auth;
+using SIMSEB.Application.Interfaces.UserManagement;
 using SIMSEB.Application.Services.Auth;
+using SIMSEB.Application.Services.UserManagement;
 using SIMSEB.Domain.Interfaces;
 using SIMSEB.Infrastructure.Persistence;
 using SIMSEB.Infrastructure.Repositories;
@@ -12,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Registrar servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Registrar controladores y Swagger

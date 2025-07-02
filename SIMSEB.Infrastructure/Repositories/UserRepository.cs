@@ -24,5 +24,11 @@ namespace SIMSEB.Infrastructure.Repositories
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == input || u.Username == input);
         }
+
+        public async Task UpdateAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }

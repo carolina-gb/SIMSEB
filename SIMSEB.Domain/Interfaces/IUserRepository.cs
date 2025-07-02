@@ -10,5 +10,7 @@ namespace SIMSEB.Domain.Interfaces
     public interface IUserRepository
     {
         Task<User?> GetByEmailOrUsernameAsync(string email);
+
+        Task UpdateAsync(User user);
     }
 }
