@@ -65,5 +65,40 @@ namespace SIMSEB.Application.Services.UserManagement
             }
         }
 
+        public async Task<GeneralResponse<string>> ChangePasswordAsync(string username, string currentPassword, string newPassword)
+        {
+            try
+            {
+                var user = await _userRepository.GetByEmailOrUsernameAsync(username);
+                if (user == null)
+                    return new GeneralResponse<string> { Code = 404, Message = "Usuario no encontrado", Data = null };
+
+                var hashedCurrentPassword = HashHelper.Hash(currentPassword);
+                if (user.Password != hashedCurrentPassword)
+                    return new GeneralResponse<string> { Code = 401, Message = "Contraseña actual incorrecta", Data = null };
+
+                user.Password = HashHelper.Hash(newPassword);
+                user.PasswordHint = HashHelper.Hash(newPassword); // o solo pista en texto plano si prefieres
+
+                await _userRepository.UpdateAsync(user);
+
+                return new GeneralResponse<string>
+                {
+                    Code = 200,
+                    Message = "Contraseña actualizada exitosamente",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<string>
+                {
+                    Code = 500,
+                    Message = $"Error interno del servidor: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
     }
 }

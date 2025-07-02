@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SIMSEB.Application.DTOs.Inbound;
 using SIMSEB.Application.DTOs.Outbound.Response;
 using SIMSEB.Application.Interfaces.UserManagement;
 
@@ -58,5 +59,30 @@ namespace SIMSEB.API.Controllers
                 });
             }
         }
+
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
+        {
+            try
+            {
+                var result = await _userManagementService.ChangePasswordAsync(
+                    request.Username,
+                    request.CurrentPassword,
+                    request.NewPassword
+                );
+
+                return StatusCode(result.Code, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new GeneralResponse<string>
+                {
+                    Code = 500,
+                    Message = $"Error interno del servidor: {ex.Message}",
+                    Data = null
+                });
+            }
+        }
+
     }
 }

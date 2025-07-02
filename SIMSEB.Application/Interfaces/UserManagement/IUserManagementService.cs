@@ -10,5 +10,7 @@ namespace SIMSEB.Application.Interfaces.UserManagement
     public interface IUserManagementService
     {
         Task<GeneralResponse<string>> ClearUserPasswordAsync(string targetUsername, string adminUsername);
+        Task<GeneralResponse<string>> ChangePasswordAsync(string username, string currentPassword, string newPassword);
+
     }
 }
