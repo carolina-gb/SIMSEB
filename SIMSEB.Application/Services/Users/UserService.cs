@@ -280,6 +280,70 @@ namespace SIMSEB.Application.Services.Users
             }
         }
 
+        public async Task<GeneralResponse<UserPaginatedResponseDto>> GetUserByUsernameAsync(string username)
+        {
+            try
+            {
+                var user = await _userRepository.GetDetailedByUsernameAsync(username);
+                if (user == null)
+                {
+                    return new GeneralResponse<UserPaginatedResponseDto>
+                    {
+                        Code = 404,
+                        Message = "Usuario no encontrado.",
+                        Data = null
+                    };
+                }
+
+                var dto = new UserDto
+                {
+                    UserId = user.UserId,
+                    Username = user.Username,
+                    FullName = $"{user.Name} {user.LastName}",
+                    Identification = user.Identification,
+                    Email = user.Email,
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user.UpdatedAt,
+                    DeletedAt = user.DeletedAt,
+                    Details = "",
+                    UserStatus = user.StatusNavigation == null ? null! : new UserStatus
+                    {
+                        UserStatusId = user.StatusNavigation.UserStatusId,
+                        Name = user.StatusNavigation.Name,
+                        ShowName = user.StatusNavigation.ShowName,
+                        CreatedAt = user.StatusNavigation.CreatedAt
+                    },
+                    Type = user.Type == null ? null! : new UserType
+                    {
+                        UserTypeId = user.Type.UserTypeId,
+                        Name = user.Type.Name,
+                        ShowName = user.Type.ShowName,
+                        CreatedAt = user.Type.CreatedAt
+                    }
+                };
+
+                return new GeneralResponse<UserPaginatedResponseDto>
+                {
+                    Code = 200,
+                    Message = "Usuario obtenido correctamente.",
+                    Data = new UserPaginatedResponseDto
+                    {
+                        Count = 1,
+                        Data = new List<UserDto> { dto }
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<UserPaginatedResponseDto>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
 
 
     }

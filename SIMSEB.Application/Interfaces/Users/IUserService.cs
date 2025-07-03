@@ -16,6 +16,7 @@ namespace SIMSEB.Application.Interfaces.Users
         Task<GeneralResponse<CreatedUserResponseDto>> CreateUserAsync(CreateUserRequestDto request);
         Task<GeneralResponse<string>> UpdateUserAsync(UpdateUserRequestDto request);
         Task<GeneralResponse<UserPaginatedResponseDto>> GetUserByIdAsync(Guid userId);
+        Task<GeneralResponse<UserPaginatedResponseDto>> GetUserByUsernameAsync(string username);
 
 
     }

@@ -54,5 +54,14 @@ namespace SIMSEB.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
+        public async Task<User?> GetDetailedByUsernameAsync(string username)
+        {
+            return await _context.Users
+                .Include(u => u.Type)
+                .Include(u => u.StatusNavigation)
+                .FirstOrDefaultAsync(u => u.Username == username);
+        }
+
+
     }
 }

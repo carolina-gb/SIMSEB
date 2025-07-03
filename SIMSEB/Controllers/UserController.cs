@@ -51,6 +51,13 @@ namespace SIMSEB.API.Controllers
             return StatusCode(result.Code, result);
         }
 
+        [HttpGet("get/by-username")]
+        public async Task<IActionResult> GetByUsername([FromQuery] string username)
+        {
+            var result = await _userService.GetUserByUsernameAsync(username);
+            return StatusCode(result.Code, result);
+        }
+
 
     }
 }
