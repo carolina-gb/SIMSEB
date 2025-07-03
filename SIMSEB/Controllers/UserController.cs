@@ -44,5 +44,13 @@ namespace SIMSEB.API.Controllers
             return StatusCode(result.Code, result);
         }
 
+        [HttpGet("get/by-id")]
+        public async Task<IActionResult> GetById([FromQuery] Guid userId)
+        {
+            var result = await _userService.GetUserByIdAsync(userId);
+            return StatusCode(result.Code, result);
+        }
+
+
     }
 }
