@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using SIMSEB.Application.DTOs.Inbound;
 using SIMSEB.Application.DTOs.Outbound;
 using SIMSEB.Application.DTOs.Outbound.Response;
 using SIMSEB.Application.Interfaces.Users;
 using SIMSEB.Domain.Entities;
 using SIMSEB.Domain.Interfaces;
+using SIMSEB.Domain.Utils;
 
 namespace SIMSEB.Application.Services.Users
 {
@@ -88,5 +90,66 @@ namespace SIMSEB.Application.Services.Users
                 };
             }
         }
+
+        public async Task<GeneralResponse<CreatedUserResponseDto>> CreateUserAsync(CreateUserRequestDto request)
+        {
+            try
+            {
+                if (request.TypeId != 2 && request.TypeId != 3)
+                {
+                    return new GeneralResponse<CreatedUserResponseDto>
+                    {
+                        Code = 400,
+                        Message = "Tipo de usuario inválido. Solo se permiten tipo 2 o 3.",
+                        Data = null
+                    };
+                }
+
+                var plainPassword = PasswordGenerator.Generate(6);
+                var hashedPassword = HashHelper.Hash(plainPassword);
+
+                var user = new User
+                {
+                    UserId = Guid.NewGuid(),
+                    Username = request.Username,
+                    Name = request.Name,
+                    LastName = request.LastName,
+                    Identification = request.Identification,
+                    Email = request.Email,
+                    TypeId = request.TypeId,
+                    Status = 1, // siempre 1
+                    Password = hashedPassword,
+                    PasswordHint = hashedPassword,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    DeletedAt = DateTime.UtcNow
+                };
+
+                await _userRepository.AddAsync(user);
+
+                return new GeneralResponse<CreatedUserResponseDto>
+                {
+                    Code = 201,
+                    Message = "Usuario creado exitosamente",
+                    Data = new CreatedUserResponseDto
+                    {
+                        UserId = user.UserId,
+                        Username = user.Username,
+                        Email = user.Email,
+                        Password = plainPassword
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<CreatedUserResponseDto>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
     }
 }

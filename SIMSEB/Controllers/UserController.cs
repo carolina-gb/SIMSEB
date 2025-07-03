@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SIMSEB.Application.DTOs.Inbound;
 using SIMSEB.Application.Interfaces.Auth;
 using SIMSEB.Application.Interfaces.Users;
 
@@ -26,6 +27,13 @@ namespace SIMSEB.API.Controllers
             const int take = 5;
 
             var result = await _userService.GetVisibleUsersAsync(typeId, skip, take);
+            return StatusCode(result.Code, result);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequestDto request)
+        {
+            var result = await _userService.CreateUserAsync(request);
             return StatusCode(result.Code, result);
         }
     }
