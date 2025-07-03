@@ -163,5 +163,59 @@ namespace SIMSEB.Application.Services.Users
             }
         }
 
+        public async Task<GeneralResponse<string>> UpdateUserAsync(UpdateUserRequestDto request)
+        {
+            try
+            {
+                if (request.TypeId != 2 && request.TypeId != 3)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 400,
+                        Message = "El tipo de usuario debe ser 2 (Admin) o 3 (Usuario).",
+                        Data = null
+                    };
+                }
+
+                var user = await _userRepository.GetByIdAsync(request.UserId);
+                if (user == null)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 404,
+                        Message = "Usuario no encontrado.",
+                        Data = null
+                    };
+                }
+
+                user.Username = request.Username;
+                user.Name = request.Name;
+                user.LastName = request.LastName;
+                user.Identification = request.Identification;
+                user.Email = request.Email;
+                user.TypeId = request.TypeId;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                await _userRepository.UpdateAsync(user);
+
+                return new GeneralResponse<string>
+                {
+                    Code = 200,
+                    Message = "Usuario actualizado correctamente.",
+                    Data = user.UserId.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<string>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+
     }
 }

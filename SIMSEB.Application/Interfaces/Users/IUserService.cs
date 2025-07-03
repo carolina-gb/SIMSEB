@@ -14,6 +14,7 @@ namespace SIMSEB.Application.Interfaces.Users
     {
         Task<GeneralResponse<UserPaginatedResponseDto>> GetVisibleUsersAsync(int typeId, int take, int skip);
         Task<GeneralResponse<CreatedUserResponseDto>> CreateUserAsync(CreateUserRequestDto request);
+        Task<GeneralResponse<string>> UpdateUserAsync(UpdateUserRequestDto request);
 
     }
 }

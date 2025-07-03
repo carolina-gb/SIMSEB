@@ -36,5 +36,13 @@ namespace SIMSEB.API.Controllers
             var result = await _userService.CreateUserAsync(request);
             return StatusCode(result.Code, result);
         }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> Update([FromBody] UpdateUserRequestDto request)
+        {
+            var result = await _userService.UpdateUserAsync(request);
+            return StatusCode(result.Code, result);
+        }
+
     }
 }

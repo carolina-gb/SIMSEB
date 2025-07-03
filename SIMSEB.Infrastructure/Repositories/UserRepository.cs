@@ -46,5 +46,13 @@ namespace SIMSEB.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<User?> GetByIdAsync(Guid userId)
+        {
+            return await _context.Users
+                .Include(u => u.Type)
+                .Include(u => u.StatusNavigation)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
     }
 }
