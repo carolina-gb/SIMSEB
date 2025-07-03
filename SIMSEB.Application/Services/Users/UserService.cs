@@ -95,6 +95,18 @@ namespace SIMSEB.Application.Services.Users
         {
             try
             {
+                // Verificar si el username ya existe
+                var existingUser = await _userRepository.GetByEmailOrUsernameAsync(request.Username);
+                if (existingUser != null)
+                {
+                    return new GeneralResponse<CreatedUserResponseDto>
+                    {
+                        Code = 409,
+                        Message = "El nombre de usuario ya existe. Por favor intente con otro.",
+                        Data = null
+                    };
+                }
+
                 if (request.TypeId != 2 && request.TypeId != 3)
                 {
                     return new GeneralResponse<CreatedUserResponseDto>
