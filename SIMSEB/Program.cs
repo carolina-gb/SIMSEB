@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using SIMSEB.API.Middleware;
 using SIMSEB.Application.Interfaces.Auth;
 using SIMSEB.Application.Interfaces.UserManagement;
+using SIMSEB.Application.Interfaces.Users;
 using SIMSEB.Application.Services.Auth;
 using SIMSEB.Application.Services.UserManagement;
+using SIMSEB.Application.Services.Users;
 using SIMSEB.Domain.Interfaces;
 using SIMSEB.Infrastructure.Persistence;
 using SIMSEB.Infrastructure.Repositories;
@@ -17,6 +20,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 // Registrar controladores y Swagger
 builder.Services.AddControllers();
 
@@ -35,6 +40,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
+app.UseMiddleware<JwtMiddleware>();
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

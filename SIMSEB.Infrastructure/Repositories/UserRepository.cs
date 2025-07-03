@@ -30,5 +30,14 @@ namespace SIMSEB.Infrastructure.Repositories
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<User>> GetByTypeIdsAsync(IEnumerable<int> typeIds)
+        {
+            return await _context.Users
+                .Where(u => typeIds.Contains(u.TypeId))
+                .Include(u => u.StatusNavigation)
+                .Include(u => u.Type)
+                .ToListAsync();
+        }
     }
 }

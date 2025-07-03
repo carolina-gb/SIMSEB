@@ -12,5 +12,7 @@ namespace SIMSEB.Domain.Interfaces
         Task<User?> GetByEmailOrUsernameAsync(string email);
 
         Task UpdateAsync(User user);
+
+        Task<IEnumerable<User>> GetByTypeIdsAsync(IEnumerable<int> typeIds);
     }
 }
