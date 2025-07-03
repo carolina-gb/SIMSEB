@@ -1,0 +1,32 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using SIMSEB.Application.Interfaces.Auth;
+using SIMSEB.Application.Interfaces.Users;
+
+namespace SIMSEB.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UserController : Controller
+    {
+        private readonly IUserService _userService;
+        public UserController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+        [HttpGet("get/all")]
+        public async Task<IActionResult> GetAll([FromQuery] int skip = 0)
+        {
+            // Leer typeId desde el JWT
+            var typeIdClaim = User.Claims.FirstOrDefault(c => c.Type == "typeId")?.Value;
+
+            if (typeIdClaim == null || !int.TryParse(typeIdClaim, out int typeId))
+                return Unauthorized(new { message = "No autorizado para acceder a esta información" });
+
+            const int take = 5;
+
+            var result = await _userService.GetVisibleUsersAsync(typeId, skip, take);
+            return StatusCode(result.Code, result);
+        }
+    }
+}
