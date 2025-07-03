@@ -1,0 +1,23 @@
+# Build
+bin/
+obj/
+out/
+
+# VS
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Packages
+*.nupkg
+*.snupkg
+packages/
+
+# Logs
+*.log
+
+# Env files
+.env
+
