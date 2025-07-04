@@ -21,9 +21,7 @@ namespace SIMSEB.API.Middleware
             // Evitar validación para rutas públicas
             var path = context.Request.Path.Value?.ToLower();
             if (path != null && (
-                path.StartsWith("/api/auth/login") ||
-                path.StartsWith("/api/userManagement/clear-password") ||
-                path.StartsWith("/api/userManagement/change-password") 
+                path.StartsWith("/api/auth/login") 
             ))
             {
                 await _next(context);

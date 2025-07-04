@@ -14,5 +14,9 @@ namespace SIMSEB.Domain.Interfaces
         Task UpdateAsync(User user);
 
         Task<IEnumerable<User>> GetByTypeIdsAsync(IEnumerable<int> typeIds);
+
+        Task AddAsync(User user);
+        Task<User?> GetByIdAsync(Guid userId);
+        Task<User?> GetDetailedByUsernameAsync(string username);
     }
 }

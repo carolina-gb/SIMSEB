@@ -39,5 +39,29 @@ namespace SIMSEB.Infrastructure.Repositories
                 .Include(u => u.Type)
                 .ToListAsync();
         }
+
+        public async Task AddAsync(User user)
+        {
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> GetByIdAsync(Guid userId)
+        {
+            return await _context.Users
+                .Include(u => u.Type)
+                .Include(u => u.StatusNavigation)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
+        public async Task<User?> GetDetailedByUsernameAsync(string username)
+        {
+            return await _context.Users
+                .Include(u => u.Type)
+                .Include(u => u.StatusNavigation)
+                .FirstOrDefaultAsync(u => u.Username == username);
+        }
+
+
     }
 }
