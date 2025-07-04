@@ -15,15 +15,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins("http://localhost:4200")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-        // .AllowCredentials(); // solo si necesitas enviar cookies/token en headers especiales
-    });
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        builder =>
+        {
+            builder
+                .WithOrigins("http://localhost:4200") // O usa .AllowAnyOrigin() para testing
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
 });
 
 
@@ -54,13 +57,13 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.UseMiddleware<JwtMiddleware>();
 app.UseHttpsRedirection();
+
+app.UseCors(MyAllowSpecificOrigins); // <--- ¡Ponlo aquí, tempranito!
+
+app.UseMiddleware<JwtMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
-
-
-app.UseCors();
 
 app.MapControllers();
 
@@ -68,6 +71,6 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-    await DbSeeder.SeedAsync(context ,configuration);
+    await DbSeeder.SeedAsync(context, configuration);
 }
 app.Run();
