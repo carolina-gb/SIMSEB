@@ -25,16 +25,17 @@ namespace SIMSEB.API.Controllers
             return StatusCode(result.Code, result);
         }
 
-        [HttpGet("by-user")]
-        public async Task<IActionResult> GetByUserId()
+        [HttpGet("{reportId}")]
+        public async Task<IActionResult> GetByReportId(Guid reportId)
         {
             var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var typeIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "typeId")?.Value;
 
-            if (!Guid.TryParse(userIdClaim, out var userId))
-                return Unauthorized("Invalid token or user not found");
+            if (!Guid.TryParse(userIdClaim, out var userId) || !int.TryParse(typeIdClaim, out var typeId))
+                return Unauthorized("Token inválido.");
 
-            var response = await _reportService.GetAllByUserIdAsync(userId);
-            return Ok(response);
+            var response = await _reportService.GetByReportIdAsync(reportId, userId, typeId);
+            return StatusCode(response.Code, response);
         }
 
         [HttpGet("by-case-number")]
@@ -49,6 +50,20 @@ namespace SIMSEB.API.Controllers
             var response = await _reportService.GetByCaseNumberAsync(userId, typeId, caseNumber);
             return StatusCode(response.Code, response);
         }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllReports([FromQuery] int skip = 0)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var typeIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "typeId")?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId) || !int.TryParse(typeIdClaim, out var typeId))
+                return Unauthorized("Token inválido.");
+
+            var response = await _reportService.GetAllReportsPaginatedAsync(userId, typeId, skip);
+            return StatusCode(response.Code, response);
+        }
+
 
     }
 }

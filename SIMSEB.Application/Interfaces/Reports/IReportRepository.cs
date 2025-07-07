@@ -16,6 +16,12 @@ namespace SIMSEB.Application.Interfaces.Reports
         Task<UserBasicInfo?> GetUserBasicAsync(Guid userId);
         Task<List<Report>> GetByUserIdAsync(Guid userId);
         Task<List<Report>> GetByCaseNumberAsync(string caseNumber);
+        Task<int> CountAllAsync();
+        Task<int> CountByUserIdAsync(Guid userId);
+        Task<List<Report>> GetAllPaginatedAsync(int skip, int take);
+        Task<List<Report>> GetByUserIdPaginatedAsync(Guid userId, int skip, int take);
+        Task<Report?> GetByIdAsync(Guid reportId);
+
 
     }
 
