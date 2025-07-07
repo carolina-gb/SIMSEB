@@ -15,6 +15,8 @@ using SIMSEB.Infrastructure.Persistence;
 using SIMSEB.Infrastructure.Repositories;
 using SIMSEB.Infrastructure.Seeders;
 using SIMSEB.Application.Services.Reports;
+using SIMSEB.Application.Interfaces.Infractions;
+using SIMSEB.Application.Services.Infractions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +69,9 @@ builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<IReportTrackingRepository, ReportTrackingRepository>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IInfractionRepository, InfractionRepository>();
+builder.Services.AddScoped<IInfractionTypeRepository, InfractionTypeRepository>();
+builder.Services.AddScoped<IInfractionService, InfractionService>();
 
 // 5. Controllers y Swagger
 builder.Services.AddControllers();
