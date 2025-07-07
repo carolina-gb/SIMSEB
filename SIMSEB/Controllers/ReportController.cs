@@ -24,5 +24,17 @@ namespace SIMSEB.API.Controllers
             var result = await _reportService.CreateReportAsync(dto);
             return StatusCode(result.Code, result);
         }
+
+        [HttpGet("by-user")]
+        public async Task<IActionResult> GetByUserId()
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized("Invalid token or user not found");
+
+            var response = await _reportService.GetAllByUserIdAsync(userId);
+            return Ok(response);
+        }
     }
 }

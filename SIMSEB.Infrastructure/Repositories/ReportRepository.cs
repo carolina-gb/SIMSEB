@@ -62,6 +62,15 @@ namespace SIMSEB.Infrastructure.Repositories
                 .Select(s => s.ShowName)
                 .FirstOrDefaultAsync();
         }
+        public async Task<List<Report>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Include(r => r.EvidenceFile)
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
+        }
     }
 }
 

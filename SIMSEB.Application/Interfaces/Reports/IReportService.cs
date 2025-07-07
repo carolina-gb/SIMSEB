@@ -12,5 +12,6 @@ namespace SIMSEB.Application.Interfaces.Reports
     public interface IReportService
     {
         Task<GeneralResponse<CreatedReportResponseDto>> CreateReportAsync(CreateReportRequestDto dto);
+        Task<GeneralResponse<ReportListByUserIdResponseDto>> GetAllByUserIdAsync(Guid userId);
     }
 }

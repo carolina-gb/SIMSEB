@@ -149,6 +149,66 @@ namespace SIMSEB.Application.Services.Reports
             };
         }
 
+        public async Task<GeneralResponse<ReportListByUserIdResponseDto>> GetAllByUserIdAsync(Guid userId)
+        {
+            try
+            {
+                var reports = await _reportRepository.GetByUserIdAsync(userId);
+
+                var dto = new ReportListByUserIdResponseDto
+                {
+                    Data = reports.Select(report => new ReportDto
+                    {
+                        ReportId = report.ReportId,
+                        CaseNumber = report.CaseNumber,
+                        Description = report.Description,
+                        RejectReason = report.RejectReason,
+                        RejectBy = report.RejectBy, // Asegúrate que en DTO sea Guid?
+                        CreatedAt = report.CreatedAt,
+                        UpdatedAt = report.UpdatedAt,
+
+                        EvidenceFile = new FileDto
+                        {
+                            FileId = report.EvidenceFile.FileId,
+                            Path = report.EvidenceFile.Path,
+                            Type = report.EvidenceFile.Type,
+                            UploadedAt = report.EvidenceFile.UploadedAt
+                        },
+                        Type = new ReportTypeDto
+                        {
+                            ReportTypeId = report.Type.ReportTypeId,
+                            Name = report.Type.Name,
+                            ShowName = report.Type.ShowName,
+                            CreatedAt = report.Type.CreatedAt
+                        },
+                        Stage = new ReportStageDto
+                        {
+                            ReportStageId = report.Stage.ReportStageId,
+                            Name = report.Stage.Name,
+                            ShowName = report.Stage.ShowName,
+                            CreatedAt = report.Stage.CreatedAt
+                        }
+                    }).ToList()
+                };
+
+                return new GeneralResponse<ReportListByUserIdResponseDto>
+                {
+                    Code = 200,
+                    Message = "Reportes obtenidos correctamente.",
+                    Data = dto
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<ReportListByUserIdResponseDto>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
         // Simulación de generación de case_number (secuencial)
         private async Task<string> GenerateNextCaseNumberAsync()
         {
