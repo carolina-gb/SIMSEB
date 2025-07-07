@@ -21,6 +21,7 @@ namespace SIMSEB.Application.Interfaces.Reports
         Task<List<Report>> GetAllPaginatedAsync(int skip, int take);
         Task<List<Report>> GetByUserIdPaginatedAsync(Guid userId, int skip, int take);
         Task<Report?> GetByIdAsync(Guid reportId);
+        Task UpdateAsync(Report report);
 
 
     }

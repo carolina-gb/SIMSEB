@@ -124,6 +124,11 @@ namespace SIMSEB.Infrastructure.Repositories
                 .FirstOrDefaultAsync(r => r.ReportId == reportId);
         }
 
+        public async Task UpdateAsync(Report report)
+        {
+            _context.Reports.Update(report);
+            await _context.SaveChangesAsync();
+        }
 
     }
 }

@@ -441,6 +441,73 @@ namespace SIMSEB.Application.Services.Reports
             }
         }
 
+        public async Task<GeneralResponse<string>> UpdateStageAsync(UpdateReportStageRequestDto dto, Guid userId, int typeId)
+        {
+            try
+            {
+                if (typeId != 1 && typeId != 2)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 403,
+                        Message = "No tiene permisos para actualizar el estado.",
+                        Data = null
+                    };
+                }
+
+                var report = await _reportRepository.GetByIdAsync(dto.ReportId);
+                if (report == null)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 404,
+                        Message = "Reporte no encontrado.",
+                        Data = null
+                    };
+                }
+
+                // Validación si es rechazo
+                var REJECTED_STAGE_ID = 3; // reemplaza por el ID real de "Rechazado"
+                if (dto.StageId == REJECTED_STAGE_ID && string.IsNullOrWhiteSpace(dto.RejectReason))
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 400,
+                        Message = "Debe ingresar una razón de rechazo.",
+                        Data = null
+                    };
+                }
+
+                // Actualizamos los campos
+                report.StageId = dto.StageId;
+                report.UpdatedAt = DateTime.UtcNow;
+
+                if (dto.StageId == REJECTED_STAGE_ID)
+                {
+                    report.RejectReason = dto.RejectReason;
+                    report.RejectBy = userId;
+                }
+
+                await _reportRepository.UpdateAsync(report);
+
+                return new GeneralResponse<string>
+                {
+                    Code = 200,
+                    Message = "Estado actualizado correctamente.",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<string>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
 
 
 
