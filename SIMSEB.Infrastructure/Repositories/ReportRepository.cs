@@ -62,6 +62,74 @@ namespace SIMSEB.Infrastructure.Repositories
                 .Select(s => s.ShowName)
                 .FirstOrDefaultAsync();
         }
+        public async Task<List<Report>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Include(r => r.EvidenceFile)
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
+        }
+        public async Task<List<Report>> GetByCaseNumberAsync(string caseNumber)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Include(r => r.EvidenceFile)
+                .Where(r => r.CaseNumber == caseNumber)
+                .ToListAsync();
+        }
+        public async Task<int> CountAllAsync()
+        {
+            return await _context.Reports.CountAsync();
+        }
+
+        public async Task<int> CountByUserIdAsync(Guid userId)
+        {
+            return await _context.Reports.Where(r => r.UserId == userId).CountAsync();
+        }
+
+        public async Task<List<Report>> GetAllPaginatedAsync(int skip, int take)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Include(r => r.EvidenceFile)
+                .OrderByDescending(r => r.CreatedAt)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<List<Report>> GetByUserIdPaginatedAsync(Guid userId, int skip, int take)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Include(r => r.EvidenceFile)
+                .Where(r => r.UserId == userId)
+                .OrderByDescending(r => r.CreatedAt)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<Report?> GetByIdAsync(Guid reportId)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Include(r => r.EvidenceFile)
+                .FirstOrDefaultAsync(r => r.ReportId == reportId);
+        }
+
+        public async Task UpdateAsync(Report report)
+        {
+            _context.Reports.Update(report);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }
 

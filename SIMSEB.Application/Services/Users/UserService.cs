@@ -53,14 +53,14 @@ namespace SIMSEB.Application.Services.Users
                     UpdatedAt = user.UpdatedAt,
                     DeletedAt = user.DeletedAt,
                     Details = "",
-                    UserStatus = user.StatusNavigation == null ? null : new UserStatus
+                    UserStatus = user.StatusNavigation == null ? null! : new UserStatus
                     {
                         UserStatusId = user.StatusNavigation.UserStatusId,
                         Name = user.StatusNavigation.Name,
                         ShowName = user.StatusNavigation.ShowName,
                         CreatedAt = user.StatusNavigation.CreatedAt
                     },
-                    Type = user.Type == null ? null : new UserType
+                    Type = user.Type == null ? null! : new UserType
                     {
                         UserTypeId = user.Type.UserTypeId,
                         Name = user.Type.Name,

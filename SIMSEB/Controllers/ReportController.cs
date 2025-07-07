@@ -24,5 +24,58 @@ namespace SIMSEB.API.Controllers
             var result = await _reportService.CreateReportAsync(dto);
             return StatusCode(result.Code, result);
         }
+
+        [HttpGet("{reportId}")]
+        public async Task<IActionResult> GetByReportId(Guid reportId)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var typeIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "typeId")?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId) || !int.TryParse(typeIdClaim, out var typeId))
+                return Unauthorized("Token inválido.");
+
+            var response = await _reportService.GetByReportIdAsync(reportId, userId, typeId);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("by-case-number")]
+        public async Task<IActionResult> GetByCaseNumber([FromQuery] string caseNumber)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var typeIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "typeId")?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId) || !int.TryParse(typeIdClaim, out var typeId))
+                return Unauthorized("Token inválido.");
+
+            var response = await _reportService.GetByCaseNumberAsync(userId, typeId, caseNumber);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllReports([FromQuery] int skip = 0)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var typeIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "typeId")?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId) || !int.TryParse(typeIdClaim, out var typeId))
+                return Unauthorized("Token inválido.");
+
+            var response = await _reportService.GetAllReportsPaginatedAsync(userId, typeId, skip);
+            return StatusCode(response.Code, response);
+        }
+
+        [HttpPut("stage")]
+        public async Task<IActionResult> UpdateStage([FromBody] UpdateReportStageRequestDto dto)
+        {
+            var userIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var typeIdClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "typeId")?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId) || !int.TryParse(typeIdClaim, out var typeId))
+                return Unauthorized("Token inválido.");
+
+            var response = await _reportService.UpdateStageAsync(dto, userId, typeId);
+            return StatusCode(response.Code, response);
+        }
+
     }
 }
