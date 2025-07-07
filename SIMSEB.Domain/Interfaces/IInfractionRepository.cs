@@ -11,5 +11,11 @@ namespace SIMSEB.Domain.Interfaces
     {
         Task CreateAsync(Infraction infraction);
         Task<string> GenerateNextInfractionNumberAsync();
+        Task<Infraction?> GetByIdAsync(Guid id);
+        Task UpdateAsync(Infraction infraction);
+        Task<Infraction?> GetDetailedByIdAsync(Guid id);
+        Task<Infraction?> GetDetailedByNumberAsync(string infractionNumber);
+        Task<List<Infraction>> GetAllDetailedAsync();
+
     }
 }

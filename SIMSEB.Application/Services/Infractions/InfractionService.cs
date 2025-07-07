@@ -151,5 +151,394 @@ namespace SIMSEB.Application.Services.Infractions
                 };
             }
         }
+
+        public async Task<GeneralResponse<string>> ToggleInfractionStatusAsync(Guid infractionId)
+        {
+            try
+            {
+                // Obtener claims del usuario actual
+                var userClaims = _httpContextAccessor.HttpContext?.User;
+                var requesterTypeId = int.Parse(userClaims?.FindFirst("typeId")?.Value ?? "0");
+
+                if (requesterTypeId != 1 && requesterTypeId != 2)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 401,
+                        Message = "No tienes permisos para modificar el estado de esta infracción.",
+                        Data = null
+                    };
+                }
+
+                var infraction = await _infractionRepository.GetByIdAsync(infractionId);
+                if (infraction == null)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 404,
+                        Message = "Infracción no encontrada.",
+                        Data = null
+                    };
+                }
+
+                infraction.Active = !infraction.Active;
+                infraction.UpdatedAt = DateTime.UtcNow;
+
+                await _infractionRepository.UpdateAsync(infraction);
+
+                return new GeneralResponse<string>
+                {
+                    Code = 200,
+                    Message = infraction.Active ? "Infracción activada correctamente." : "Infracción inactivada correctamente.",
+                    Data = infraction.InfractionId.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<string>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<GeneralResponse<string>> UpdateInfractionTypeAsync(UpdateInfractionTypeRequestDto dto)
+        {
+            try
+            {
+                var userClaims = _httpContextAccessor.HttpContext?.User;
+                var requesterTypeId = int.Parse(userClaims?.FindFirst("typeId")?.Value ?? "0");
+
+                if (requesterTypeId != 1 && requesterTypeId != 2)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 401,
+                        Message = "No tienes permisos para actualizar el tipo de infracción.",
+                        Data = null
+                    };
+                }
+
+                var infraction = await _infractionRepository.GetByIdAsync(dto.InfractionId);
+                if (infraction == null)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 404,
+                        Message = "Infracción no encontrada.",
+                        Data = null
+                    };
+                }
+
+                var infractionType = await _infractionTypeRepository.GetByIdAsync(dto.TypeId);
+                if (infractionType == null)
+                {
+                    return new GeneralResponse<string>
+                    {
+                        Code = 404,
+                        Message = "Tipo de infracción no válido.",
+                        Data = null
+                    };
+                }
+
+                var newAmount = infractionType.Name switch
+                {
+                    "high" => 100.00m,
+                    "moderate" => 50.00m,
+                    "low" => 20.00m,
+                    _ => 0m
+                };
+
+                infraction.TypeId = dto.TypeId;
+                infraction.Amount = newAmount;
+                infraction.UpdatedAt = DateTime.UtcNow;
+
+                await _infractionRepository.UpdateAsync(infraction);
+
+                return new GeneralResponse<string>
+                {
+                    Code = 200,
+                    Message = "Tipo de infracción actualizado correctamente.",
+                    Data = infraction.InfractionId.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<string>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<GeneralResponse<InfractionResponseDto>> GetByIdAsync(Guid id)
+        {
+            try
+            {
+
+                var userClaims = _httpContextAccessor.HttpContext?.User;
+                var requesterTypeId = int.Parse(userClaims?.FindFirst("typeId")?.Value ?? "0");
+
+                if (requesterTypeId != 1 && requesterTypeId != 2)
+                {
+                    return new GeneralResponse<InfractionResponseDto>
+                    {
+                        Code = 401,
+                        Message = "No tienes permisos para consultar esta infracción.",
+                        Data = null
+                    };
+                }
+
+                var infraction = await _infractionRepository.GetDetailedByIdAsync(id);
+                if (infraction == null)
+                {
+                    return new GeneralResponse<InfractionResponseDto>
+                    {
+                        Code = 404,
+                        Message = "Infracción no encontrada.",
+                        Data = null
+                    };
+                }
+
+                var response = new InfractionResponseDto
+                {
+                    InfractionId = infraction.InfractionId,
+                    InfractionNumber = infraction.InfractionNumber,
+                    Amount = infraction.Amount,
+                    Active = infraction.Active,
+                    CreatedAt = infraction.CreatedAt,
+                    User = new UserDto
+                    {
+                        UserId = infraction.User.UserId,
+                        Username = infraction.User.Username,
+                        FullName = $"{infraction.User.Name} {infraction.User.LastName}",
+                        Identification = infraction.User.Identification,
+                        Email = infraction.User.Email,
+                        CreatedAt = infraction.User.CreatedAt,
+                        UpdatedAt = infraction.User.UpdatedAt,
+                        DeletedAt = infraction.User.DeletedAt,
+                        Details = "Usuario con infracción",
+                        UserStatus = infraction.User.StatusNavigation == null ? null : new UserStatus
+                        {
+                            UserStatusId = infraction.User.StatusNavigation.UserStatusId,
+                            Name = infraction.User.StatusNavigation.Name,
+                            ShowName = infraction.User.StatusNavigation.ShowName,
+                            CreatedAt = infraction.User.StatusNavigation.CreatedAt
+                        },
+                        Type = infraction.User.Type == null ? null : new UserType
+                        {
+                            UserTypeId = infraction.User.Type.UserTypeId,
+                            Name = infraction.User.Type.Name,
+                            ShowName = infraction.User.Type.ShowName,
+                            CreatedAt = infraction.User.Type.CreatedAt
+                        }
+                    },
+                    Type = new InfractionTypeDto
+                    {
+                        InfractionTypeId = infraction.Type.InfractionTypeId,
+                        Name = infraction.Type.Name,
+                        ShowName = infraction.Type.ShowName,
+                        CreatedAt = infraction.Type.CreatedAt
+                    }
+                };
+
+                return new GeneralResponse<InfractionResponseDto>
+                {
+                    Code = 200,
+                    Message = "Infracción obtenida correctamente.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<InfractionResponseDto>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<GeneralResponse<InfractionResponseDto>> GetByNumberAsync(string infractionNumber)
+        {
+            try
+            {
+
+                var userClaims = _httpContextAccessor.HttpContext?.User;
+                var requesterTypeId = int.Parse(userClaims?.FindFirst("typeId")?.Value ?? "0");
+
+                if (requesterTypeId != 1 && requesterTypeId != 2)
+                {
+                    return new GeneralResponse<InfractionResponseDto>
+                    {
+                        Code = 401,
+                        Message = "No tienes permisos para consultar esta infracción.",
+                        Data = null
+                    };
+                }
+
+
+                var infraction = await _infractionRepository.GetDetailedByNumberAsync(infractionNumber);
+                if (infraction == null)
+                {
+                    return new GeneralResponse<InfractionResponseDto>
+                    {
+                        Code = 404,
+                        Message = "Infracción no encontrada con ese número.",
+                        Data = null
+                    };
+                }
+
+                var response = new InfractionResponseDto
+                {
+                    InfractionId = infraction.InfractionId,
+                    InfractionNumber = infraction.InfractionNumber,
+                    Amount = infraction.Amount,
+                    Active = infraction.Active,
+                    CreatedAt = infraction.CreatedAt,
+                    User = new UserDto
+                    {
+                        UserId = infraction.User.UserId,
+                        Username = infraction.User.Username,
+                        FullName = $"{infraction.User.Name} {infraction.User.LastName}",
+                        Identification = infraction.User.Identification,
+                        Email = infraction.User.Email,
+                        CreatedAt = infraction.User.CreatedAt,
+                        UpdatedAt = infraction.User.UpdatedAt,
+                        DeletedAt = infraction.User.DeletedAt,
+                        Details = "Usuario con infracción",
+                        UserStatus = infraction.User.StatusNavigation == null ? null : new UserStatus
+                        {
+                            UserStatusId = infraction.User.StatusNavigation.UserStatusId,
+                            Name = infraction.User.StatusNavigation.Name,
+                            ShowName = infraction.User.StatusNavigation.ShowName,
+                            CreatedAt = infraction.User.StatusNavigation.CreatedAt
+                        },
+                        Type = infraction.User.Type == null ? null : new UserType
+                        {
+                            UserTypeId = infraction.User.Type.UserTypeId,
+                            Name = infraction.User.Type.Name,
+                            ShowName = infraction.User.Type.ShowName,
+                            CreatedAt = infraction.User.Type.CreatedAt
+                        }
+                    },
+                    Type = new InfractionTypeDto
+                    {
+                        InfractionTypeId = infraction.Type.InfractionTypeId,
+                        Name = infraction.Type.Name,
+                        ShowName = infraction.Type.ShowName,
+                        CreatedAt = infraction.Type.CreatedAt
+                    }
+                };
+
+                return new GeneralResponse<InfractionResponseDto>
+                {
+                    Code = 200,
+                    Message = "Infracción obtenida correctamente.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<InfractionResponseDto>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<GeneralResponse<InfractionPaginatedResponseDto>> GetAllPaginatedAsync(int skip, int take)
+        {
+            try
+            {
+                var userClaims = _httpContextAccessor.HttpContext?.User;
+                var requesterTypeId = int.Parse(userClaims?.FindFirst("typeId")?.Value ?? "0");
+
+                if (requesterTypeId != 1 && requesterTypeId != 2)
+                {
+                    return new GeneralResponse<InfractionPaginatedResponseDto>
+                    {
+                        Code = 401,
+                        Message = "No tienes permisos para consultar las infracciones.",
+                        Data = null
+                    };
+                }
+
+                var allInfractions = await _infractionRepository.GetAllDetailedAsync();
+
+                var count = allInfractions.Count;
+                var paginated = allInfractions.Skip(skip).Take(take);
+
+                var data = paginated.Select(infraction => new InfractionResponseDto
+                {
+                    InfractionId = infraction.InfractionId,
+                    InfractionNumber = infraction.InfractionNumber,
+                    Amount = infraction.Amount,
+                    Active = infraction.Active,
+                    CreatedAt = infraction.CreatedAt,
+                    User = new UserDto
+                    {
+                        UserId = infraction.User.UserId,
+                        Username = infraction.User.Username,
+                        FullName = $"{infraction.User.Name} {infraction.User.LastName}",
+                        Identification = infraction.User.Identification,
+                        Email = infraction.User.Email,
+                        CreatedAt = infraction.User.CreatedAt,
+                        UpdatedAt = infraction.User.UpdatedAt,
+                        DeletedAt = infraction.User.DeletedAt,
+                        Details = "Usuario con infracción",
+                        UserStatus = infraction.User.StatusNavigation == null ? null : new UserStatus
+                        {
+                            UserStatusId = infraction.User.StatusNavigation.UserStatusId,
+                            Name = infraction.User.StatusNavigation.Name,
+                            ShowName = infraction.User.StatusNavigation.ShowName,
+                            CreatedAt = infraction.User.StatusNavigation.CreatedAt
+                        },
+                        Type = infraction.User.Type == null ? null : new UserType
+                        {
+                            UserTypeId = infraction.User.Type.UserTypeId,
+                            Name = infraction.User.Type.Name,
+                            ShowName = infraction.User.Type.ShowName,
+                            CreatedAt = infraction.User.Type.CreatedAt
+                        }
+                    },
+                    Type = new InfractionTypeDto
+                    {
+                        InfractionTypeId = infraction.Type.InfractionTypeId,
+                        Name = infraction.Type.Name,
+                        ShowName = infraction.Type.ShowName,
+                        CreatedAt = infraction.Type.CreatedAt
+                    }
+                }).ToList();
+
+                return new GeneralResponse<InfractionPaginatedResponseDto>
+                {
+                    Code = 200,
+                    Message = "Lista de infracciones obtenida correctamente.",
+                    Data = new InfractionPaginatedResponseDto
+                    {
+                        Count = count,
+                        Data = data
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<InfractionPaginatedResponseDto>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
     }
 }

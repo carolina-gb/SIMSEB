@@ -43,5 +43,48 @@ namespace SIMSEB.Infrastructure.Repositories
 
             return $"INF-{DateTime.UtcNow.Year}-{nextNumber.ToString("D6")}";
         }
+        public async Task<Infraction?> GetByIdAsync(Guid id)
+        {
+            return await _context.Infractions.FirstOrDefaultAsync(i => i.InfractionId == id);
+        }
+
+        public async Task UpdateAsync(Infraction infraction)
+        {
+            _context.Infractions.Update(infraction);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Infraction?> GetDetailedByIdAsync(Guid id)
+        {
+            return await _context.Infractions
+                .Include(i => i.User)
+                    .ThenInclude(u => u.Type)
+                .Include(i => i.User)
+                    .ThenInclude(u => u.StatusNavigation)
+                .Include(i => i.Type)
+                .FirstOrDefaultAsync(i => i.InfractionId == id);
+        }
+
+        public async Task<Infraction?> GetDetailedByNumberAsync(string infractionNumber)
+        {
+            return await _context.Infractions
+                .Include(i => i.User)
+                    .ThenInclude(u => u.Type)
+                .Include(i => i.User)
+                    .ThenInclude(u => u.StatusNavigation)
+                .Include(i => i.Type)
+                .FirstOrDefaultAsync(i => i.InfractionNumber == infractionNumber);
+        }
+        public async Task<List<Infraction>> GetAllDetailedAsync()
+        {
+            return await _context.Infractions
+                .Include(i => i.User)
+                    .ThenInclude(u => u.Type)
+                .Include(i => i.User)
+                    .ThenInclude(u => u.StatusNavigation)
+                .Include(i => i.Type)
+                .ToListAsync();
+        }
+
     }
 }
