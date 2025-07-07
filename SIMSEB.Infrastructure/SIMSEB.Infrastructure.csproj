@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SIMSEB.Application\SIMSEB.Application.csproj" />
     <ProjectReference Include="..\SIMSEB.Domain\SIMSEB.Domain.csproj" />
   </ItemGroup>
 
