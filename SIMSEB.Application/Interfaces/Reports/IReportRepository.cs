@@ -15,6 +15,8 @@ namespace SIMSEB.Application.Interfaces.Reports
         Task<string?> GetStageNameAsync(int stageId);
         Task<UserBasicInfo?> GetUserBasicAsync(Guid userId);
         Task<List<Report>> GetByUserIdAsync(Guid userId);
+        Task<List<Report>> GetByCaseNumberAsync(string caseNumber);
+
     }
 
     public class UserBasicInfo

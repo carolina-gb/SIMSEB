@@ -71,6 +71,16 @@ namespace SIMSEB.Infrastructure.Repositories
                 .Where(r => r.UserId == userId)
                 .ToListAsync();
         }
+        public async Task<List<Report>> GetByCaseNumberAsync(string caseNumber)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Include(r => r.EvidenceFile)
+                .Where(r => r.CaseNumber == caseNumber)
+                .ToListAsync();
+        }
+
     }
 }
 

@@ -13,5 +13,7 @@ namespace SIMSEB.Application.Interfaces.Reports
     {
         Task<GeneralResponse<CreatedReportResponseDto>> CreateReportAsync(CreateReportRequestDto dto);
         Task<GeneralResponse<ReportListByUserIdResponseDto>> GetAllByUserIdAsync(Guid userId);
+        Task<GeneralResponse<ReportListByUserIdResponseDto>> GetByCaseNumberAsync(Guid userId, int typeId, string caseNumber);
+
     }
 }

@@ -209,6 +209,89 @@ namespace SIMSEB.Application.Services.Reports
             }
         }
 
+        public async Task<GeneralResponse<ReportListByUserIdResponseDto>> GetByCaseNumberAsync(Guid userId, int typeId, string caseNumber)
+        {
+            try
+            {
+                List<Report> reports;
+
+                if (typeId == 3)
+                {
+                    // Usuario regular: primero obtengo solo los suyos
+                    reports = await _reportRepository.GetByUserIdAsync(userId);
+                    reports = reports.Where(r => r.CaseNumber.Equals(caseNumber, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+                else
+                {
+                    // Admin o SuperAdmin: búsqueda libre
+                    reports = await _reportRepository.GetByCaseNumberAsync(caseNumber);
+                }
+
+                if (!reports.Any())
+                {
+                    return new GeneralResponse<ReportListByUserIdResponseDto>
+                    {
+                        Code = 404,
+                        Message = "No se encontraron reportes con ese número de caso.",
+                        Data = null
+                    };
+                }
+
+                var dto = new ReportListByUserIdResponseDto
+                {
+                    Data = reports.Select(report => new ReportDto
+                    {
+                        ReportId = report.ReportId,
+                        CaseNumber = report.CaseNumber,
+                        Description = report.Description,
+                        RejectReason = report.RejectReason,
+                        RejectBy = report.RejectBy,
+                        CreatedAt = report.CreatedAt,
+                        UpdatedAt = report.UpdatedAt,
+
+                        EvidenceFile = new FileDto
+                        {
+                            FileId = report.EvidenceFile.FileId,
+                            Path = report.EvidenceFile.Path,
+                            Type = report.EvidenceFile.Type,
+                            UploadedAt = report.EvidenceFile.UploadedAt
+                        },
+                        Type = new ReportTypeDto
+                        {
+                            ReportTypeId = report.Type.ReportTypeId,
+                            Name = report.Type.Name,
+                            ShowName = report.Type.ShowName,
+                            CreatedAt = report.Type.CreatedAt
+                        },
+                        Stage = new ReportStageDto
+                        {
+                            ReportStageId = report.Stage.ReportStageId,
+                            Name = report.Stage.Name,
+                            ShowName = report.Stage.ShowName,
+                            CreatedAt = report.Stage.CreatedAt
+                        }
+                    }).ToList()
+                };
+
+                return new GeneralResponse<ReportListByUserIdResponseDto>
+                {
+                    Code = 200,
+                    Message = "Reportes filtrados por número de caso.",
+                    Data = dto
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GeneralResponse<ReportListByUserIdResponseDto>
+                {
+                    Code = 500,
+                    Message = $"Error interno: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
+
+
         // Simulación de generación de case_number (secuencial)
         private async Task<string> GenerateNextCaseNumberAsync()
         {
