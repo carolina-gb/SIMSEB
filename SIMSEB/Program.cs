@@ -17,6 +17,10 @@ using SIMSEB.Infrastructure.Seeders;
 using SIMSEB.Application.Services.Reports;
 using SIMSEB.Application.Interfaces.Infractions;
 using SIMSEB.Application.Services.Infractions;
+using SIMSEB.Infrastructure.Services;
+using SIMSEB.Infrastructure.Hubs;
+using SIMSEB.Application.Interfaces.Emergency;
+using SIMSEB.Application.Services.Emergency;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +76,10 @@ builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IInfractionRepository, InfractionRepository>();
 builder.Services.AddScoped<IInfractionTypeRepository, InfractionTypeRepository>();
 builder.Services.AddScoped<IInfractionService, InfractionService>();
+builder.Services.AddSignalR();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IEmergencyRepository, EmergencyRepository>();
+builder.Services.AddScoped<IEmergencyService, EmergencyService>();
 
 // 5. Controllers y Swagger
 builder.Services.AddControllers();
@@ -101,6 +109,8 @@ app.UseAuthentication(); // importante: antes de UseAuthorization
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/hub/notifications");
 
 // Seeder
 using (var scope = app.Services.CreateScope())
