@@ -8,6 +8,9 @@ namespace SIMSEB.Domain.Entities
 {
     public class NotificationMessage
     {
+        public string typeName { get; set; }
+
+        public string username { get; set; }
         public string Message { get; set; }
         public int EmergencyId { get; set; }  
         public DateTime CreatedAt { get; set; }

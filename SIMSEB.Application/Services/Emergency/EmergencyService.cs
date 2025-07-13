@@ -14,6 +14,12 @@ using System.Security.Claims;
 
 namespace SIMSEB.Application.Services.Emergency
 {
+    public class EmergencyType
+    {
+        public int Id { get; init; }
+        public string Name { get; init; }        // Inglés
+        public string ShowName { get; init; }    // Español
+    }
     public class EmergencyService : IEmergencyService
     {
         private readonly IEmergencyRepository _emergencyRepository;
@@ -50,7 +56,7 @@ namespace SIMSEB.Application.Services.Emergency
                 }
 
                 var userId = Guid.Parse(userIdClaim);
-
+                var user = await _userRepository.GetByIdAsync(userId);
                 var emergency = new SIMSEB.Domain.Entities.Emergency
                 {
                     TypeId = dto.TypeId,
@@ -59,11 +65,20 @@ namespace SIMSEB.Application.Services.Emergency
                 };
 
                 await _emergencyRepository.AddAsync(emergency);
-
+                var emergencyTypes = new List<EmergencyType>
+{
+    new() { Id = 1, Name = "theft",  ShowName = "Robo"     },
+    new() { Id = 2, Name = "fire",   ShowName = "Incendio" },
+    new() { Id = 3, Name = "fight",  ShowName = "Pelea"    },
+};
                 var admins = await _userRepository.GetByTypeIdsAsync(new[] { 1, 2 });
 
                 var notification = new NotificationMessage
                 {
+                    typeName = emergencyTypes
+                  .FirstOrDefault(e => e.Id == dto.TypeId)?.ShowName
+                  ?? "🤷‍♂️ Tipo de emergencia desconocido",
+                    username = user.Username,
                     Message = "Nueva emergencia creada",
                     EmergencyId = emergency.EmergencyId,
                     CreatedAt = emergency.CreatedAt

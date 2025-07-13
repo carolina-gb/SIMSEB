@@ -6,7 +6,7 @@ using SIMSEB.Application.Interfaces.Infractions;
 namespace SIMSEB.API.Controllers
 {
     [ApiController]
-    [Route("infractions")]
+    [Route("api/[controller]")]
     public class InfractionController : ControllerBase
     {
         private readonly IInfractionService _infractionService;
