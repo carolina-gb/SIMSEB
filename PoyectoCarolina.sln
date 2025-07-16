@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIMSEB.API", "SIMSEB\SIMSEB.API.csproj", "{1B82878D-7F3C-4C2F-854F-8C25B2795A40}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FD6E82F2-5FE1-4E92-9CFA-1E3DC39EC5FB} = {FD6E82F2-5FE1-4E92-9CFA-1E3DC39EC5FB}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SIMSEB.Application", "SIMSEB.Application\SIMSEB.Application.csproj", "{9FB591F6-1D7A-4966-85B0-F3EFEAD90B5B}"
 EndProject
