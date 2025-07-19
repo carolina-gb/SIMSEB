@@ -14,7 +14,7 @@ using SIMSEB.Domain.Utils;
 
 namespace SIMSEB.Application.Services.Users
 {
-    public class UserService :IUserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
@@ -280,22 +280,24 @@ namespace SIMSEB.Application.Services.Users
             }
         }
 
-        public async Task<GeneralResponse<UserPaginatedResponseDto>> GetUserByUsernameAsync(string username)
+        public async Task<GeneralResponse<UserPaginatedResponseDto>> GetUserByUsernameAsync(string filter)
         {
             try
             {
-                var user = await _userRepository.GetDetailedByUsernameAsync(username);
-                if (user == null)
+                // Ahora es una lista
+                IEnumerable<User> users = await _userRepository.GetDetailedByFilterAsync(filter);
+                var count = users.Count();
+                if (users == null || count == 0)
                 {
                     return new GeneralResponse<UserPaginatedResponseDto>
                     {
                         Code = 404,
-                        Message = "Usuario no encontrado.",
+                        Message = "No se encontraron usuarios con ese filtro.",
                         Data = null
                     };
                 }
 
-                var dto = new UserDto
+                var dtos = users.Select(user => new UserDto
                 {
                     UserId = user.UserId,
                     Username = user.Username,
@@ -320,16 +322,16 @@ namespace SIMSEB.Application.Services.Users
                         ShowName = user.Type.ShowName,
                         CreatedAt = user.Type.CreatedAt
                     }
-                };
+                }).ToList();
 
                 return new GeneralResponse<UserPaginatedResponseDto>
                 {
                     Code = 200,
-                    Message = "Usuario obtenido correctamente.",
+                    Message = "Usuarios obtenidos correctamente.",
                     Data = new UserPaginatedResponseDto
                     {
-                        Count = 1,
-                        Data = new List<UserDto> { dto }
+                        Count = dtos.Count,
+                        Data = dtos
                     }
                 };
             }

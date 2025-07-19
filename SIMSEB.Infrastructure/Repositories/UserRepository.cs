@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SIMSEB.Domain.Entities;
 using SIMSEB.Domain.Interfaces;
 using SIMSEB.Infrastructure.Persistence;
@@ -53,15 +48,24 @@ namespace SIMSEB.Infrastructure.Repositories
                 .Include(u => u.StatusNavigation)
                 .FirstOrDefaultAsync(u => u.UserId == userId);
         }
-
-        public async Task<User?> GetDetailedByUsernameAsync(string username)
+        public async Task<IEnumerable<User>> GetDetailedByFilterAsync(string filter)
         {
+            // Asegúrate de que filter no sea null ni esté vacío (opcional)
+            if (string.IsNullOrWhiteSpace(filter))
+                return new List<User>();
+
+            // Lo pasamos a minúsculas para hacer búsqueda case-insensitive (opcional)
+            filter = filter.Trim().ToLower();
+
             return await _context.Users
                 .Include(u => u.Type)
                 .Include(u => u.StatusNavigation)
-                .FirstOrDefaultAsync(u => u.Username == username);
+                .Where(u =>
+                    u.Username.ToLower().Contains(filter) ||
+                    u.Name.ToLower().Contains(filter) ||
+                    u.LastName.ToLower().Contains(filter)
+                )
+                .ToListAsync();
         }
-
-
     }
 }

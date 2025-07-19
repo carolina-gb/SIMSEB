@@ -17,6 +17,6 @@ namespace SIMSEB.Domain.Interfaces
 
         Task AddAsync(User user);
         Task<User?> GetByIdAsync(Guid userId);
-        Task<User?> GetDetailedByUsernameAsync(string username);
+        Task<IEnumerable<User>> GetDetailedByFilterAsync(string filter);
     }
 }

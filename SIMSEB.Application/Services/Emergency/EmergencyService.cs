@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using SIMSEB.Application.DTOs.Inbound;
 using SIMSEB.Application.DTOs.Outbound.Response;
 using SIMSEB.Application.DTOs.Outbound;
 using SIMSEB.Application.Interfaces.Emergency;
 using SIMSEB.Domain.Entities;
 using SIMSEB.Domain.Interfaces;
-using System.Security.Claims;
 
 namespace SIMSEB.Application.Services.Emergency
 {
@@ -66,11 +60,11 @@ namespace SIMSEB.Application.Services.Emergency
 
                 await _emergencyRepository.AddAsync(emergency);
                 var emergencyTypes = new List<EmergencyType>
-{
-    new() { Id = 1, Name = "theft",  ShowName = "Robo"     },
-    new() { Id = 2, Name = "fire",   ShowName = "Incendio" },
-    new() { Id = 3, Name = "fight",  ShowName = "Pelea"    },
-};
+                    {
+                        new() { Id = 1, Name = "theft",  ShowName = "Robo"     },
+                        new() { Id = 2, Name = "fire",   ShowName = "Incendio" },
+                        new() { Id = 3, Name = "fight",  ShowName = "Pelea"    },
+                    };
                 var admins = await _userRepository.GetByTypeIdsAsync(new[] { 1, 2 });
 
                 var notification = new NotificationMessage
