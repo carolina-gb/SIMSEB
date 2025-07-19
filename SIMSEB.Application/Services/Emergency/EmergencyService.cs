@@ -55,7 +55,9 @@ namespace SIMSEB.Application.Services.Emergency
                 {
                     TypeId = dto.TypeId,
                     UserId = userId,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    Latitude = dto.Latitude,
+                    Longitude = dto.Longitude
                 };
 
                 await _emergencyRepository.AddAsync(emergency);
@@ -89,7 +91,9 @@ namespace SIMSEB.Application.Services.Emergency
                         EmergencyId = emergency.EmergencyId,
                         TypeId = emergency.TypeId,
                         UserId = emergency.UserId,
-                        CreatedAt = emergency.CreatedAt
+                        CreatedAt = emergency.CreatedAt,
+                        Latitude = emergency.Latitude,
+                        Longitude = emergency.Longitude
                     }
                 };
             }
@@ -137,6 +141,8 @@ namespace SIMSEB.Application.Services.Emergency
                         TypeId = e.TypeId,
                         TypeName = e.Type.ShowName,
                         UserId = e.User.UserId,
+                        Latitude = e.Latitude,
+                        Longitude = e.Longitude,
                         Username = e.User.Username,
                         CreatedAt = e.CreatedAt
                     }).ToList()

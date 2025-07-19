@@ -12,29 +12,29 @@ namespace SIMSEB.Infrastructure.Persistence
 
         public DbSet<User> Users { get; set; }
 
-        public  DbSet<EmergenciesType> EmergenciesTypes { get; set; }
+        public DbSet<EmergenciesType> EmergenciesTypes { get; set; }
 
-        public  DbSet<Emergency> Emergencies { get; set; }
+        public DbSet<Emergency> Emergencies { get; set; }
 
-        public  DbSet<Domain.Entities.File> Files { get; set; }
+        public DbSet<Domain.Entities.File> Files { get; set; }
 
-        public  DbSet<Infraction> Infractions { get; set; }
+        public DbSet<Infraction> Infractions { get; set; }
 
-        public  DbSet<InfractionsType> InfractionsTypes { get; set; }
+        public DbSet<InfractionsType> InfractionsTypes { get; set; }
 
-        public  DbSet<Report> Reports { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
-        public  DbSet<ReportsStage> ReportsStages { get; set; }
+        public DbSet<ReportsStage> ReportsStages { get; set; }
 
-        public  DbSet<ReportsTracking> ReportsTrackings { get; set; }
+        public DbSet<ReportsTracking> ReportsTrackings { get; set; }
 
-        public  DbSet<ReportsType> ReportsTypes { get; set; }
+        public DbSet<ReportsType> ReportsTypes { get; set; }
 
-        public  DbSet<UsersNotice> UsersNotices { get; set; }
+        public DbSet<UsersNotice> UsersNotices { get; set; }
 
-        public  DbSet<UsersStatus> UsersStatuses { get; set; }
+        public DbSet<UsersStatus> UsersStatuses { get; set; }
 
-        public  DbSet<UsersType> UsersTypes { get; set; }
+        public DbSet<UsersType> UsersTypes { get; set; }
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //=> optionsBuilder.UseNpgsql("Server=localhost;Port=3434;UserId=postgres;Password=hoodSystem");
@@ -71,7 +71,12 @@ namespace SIMSEB.Infrastructure.Persistence
                     .HasColumnName("created_at");
                 entity.Property(e => e.TypeId).HasColumnName("type_id");
                 entity.Property(e => e.UserId).HasColumnName("user_id");
-
+                entity.Property(e => e.Latitude)
+                    .HasColumnType("numeric(9,6)")
+                    .HasColumnName("latitude");
+                entity.Property(e => e.Longitude)
+                      .HasColumnType("numeric(9,6)")
+                      .HasColumnName("longitude");
                 entity.HasOne(d => d.Type).WithMany(p => p.Emergencies)
                     .HasForeignKey(d => d.TypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
@@ -81,6 +86,7 @@ namespace SIMSEB.Infrastructure.Persistence
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("emergencies_user_id_fkey");
+
             });
 
             modelBuilder.Entity<Domain.Entities.File>(entity =>

@@ -11,6 +11,8 @@ namespace SIMSEB.Application.DTOs.Outbound
         public int EmergencyId { get; set; }  
         public int TypeId { get; set; }
         public Guid UserId { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

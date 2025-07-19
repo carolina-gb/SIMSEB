@@ -19,6 +19,8 @@ namespace SIMSEB.Application.DTOs.Outbound
         public string TypeName { get; set; }
         public Guid UserId { get; set; }
         public string Username { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
