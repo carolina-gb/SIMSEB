@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -24,22 +24,35 @@ using SIMSEB.Application.Services.Emergency;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+// -----------------------------------------------------------------------------
+// 1. Configuración (JSON + variables de entorno primero que todo)
+builder.Configuration
+       .SetBasePath(Directory.GetCurrentDirectory())
+       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+       .AddEnvironmentVariables();
 
-// 1. CORS
+// -----------------------------------------------------------------------------
+// 2. CORS
+const string FrontPolicy = "FrontPolicy";
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
-        });
+    options.AddPolicy(FrontPolicy, policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:4200",              // dev local
+                "https://simseb-web.onrender.com",   // frontend en Render
+                "https://tu-dominio.com"             // ← agrega más si los necesitas
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
-// 2. JWT - Autenticaci�n oficial para que [Authorize] funcione
+// -----------------------------------------------------------------------------
+// 3. JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -47,7 +60,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = true;     // Render sirve HTTPS ✔️
     options.SaveToken = true;
 
     options.TokenValidationParameters = new TokenValidationParameters
@@ -57,15 +70,18 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!)),
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!)
+        ),
         ClockSkew = TimeSpan.Zero
     };
 });
 
-// 3. Acceso a HttpContext en servicios
+// -----------------------------------------------------------------------------
+// 4. Acceso a HttpContext
 builder.Services.AddHttpContextAccessor();
 
-// 4. Servicios del sistema
+// -----------------------------------------------------------------------------
+// 5. Servicios del sistema
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -82,43 +98,64 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IEmergencyRepository, EmergencyRepository>();
 builder.Services.AddScoped<IEmergencyService, EmergencyService>();
 
-// 5. Controllers y Swagger
+// -----------------------------------------------------------------------------
+// 6. Controllers & Swagger
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 6. DbContext
+// -----------------------------------------------------------------------------
+// 7. DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
+// -----------------------------------------------------------------------------
+// 8. Build
 var app = builder.Build();
 
+// -----------------------------------------------------------------------------
+// 9. Dev‑only goodies
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Middleware pipeline
+// -----------------------------------------------------------------------------
+// 10. Middleware pipeline (orden importa)
 app.UseHttpsRedirection();
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(FrontPolicy);
 
-app.UseMiddleware<JwtMiddleware>(); // tu middleware personalizado
-app.UseAuthentication(); // importante: antes de UseAuthorization
+// ⚠️ Asegúrate de que tu JwtMiddleware permita las
+//     solicitudes OPTIONS para que el pre-flight CORS pase.
+/*
+public async Task Invoke(HttpContext context)
+{
+    if (context.Request.Method == HttpMethods.Options)
+    {
+        await _next(context);
+        return;
+    }
+    ...
+}
+*/
+app.UseMiddleware<JwtMiddleware>();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.MapHub<NotificationHub>("/hub/notifications");
 
-// Seeder
+// -----------------------------------------------------------------------------
+// 11. Seeder
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-    await DbSeeder.SeedAsync(context, configuration);
+    var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var cfg = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    await DbSeeder.SeedAsync(ctx, cfg);
 }
 
 app.Run();
