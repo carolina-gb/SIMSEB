@@ -32,6 +32,7 @@ namespace SIMSEB.Infrastructure.Repositories
                 .Where(u => typeIds.Contains(u.TypeId))
                 .Include(u => u.StatusNavigation)
                 .Include(u => u.Type)
+                .OrderByDescending(u => u.CreatedAt)
                 .ToListAsync();
         }
 

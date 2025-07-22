@@ -83,6 +83,7 @@ namespace SIMSEB.Infrastructure.Repositories
                 .Include(i => i.User)
                     .ThenInclude(u => u.StatusNavigation)
                 .Include(i => i.Type)
+                .OrderByDescending(i => i.CreatedAt)
                 .ToListAsync();
         }
 
