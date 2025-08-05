@@ -20,6 +20,12 @@ namespace SIMSEB.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == input || u.Username == input);
         }
 
+        public async Task<User?> GetByIdentificationAsync(string input)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Identification == input);
+        }
+
         public async Task UpdateAsync(User user)
         {
             _context.Users.Update(user);

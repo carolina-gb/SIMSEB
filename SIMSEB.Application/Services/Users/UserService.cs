@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using SIMSEB.Application.DTOs.Inbound;
 using SIMSEB.Application.DTOs.Outbound;
 using SIMSEB.Application.DTOs.Outbound.Response;
@@ -11,6 +6,12 @@ using SIMSEB.Application.Interfaces.Users;
 using SIMSEB.Domain.Entities;
 using SIMSEB.Domain.Interfaces;
 using SIMSEB.Domain.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace SIMSEB.Application.Services.Users
 {
@@ -93,16 +94,19 @@ namespace SIMSEB.Application.Services.Users
 
         public async Task<GeneralResponse<CreatedUserResponseDto>> CreateUserAsync(CreateUserRequestDto request)
         {
+            var usernameHelper = new UsernameHelper(_userRepository);
             try
             {
                 // Verificar si el username ya existe
-                var existingUser = await _userRepository.GetByEmailOrUsernameAsync(request.Username);
+                string username = await usernameHelper.GenerateUniqueUsernameAsync(request.Name, request.LastName);
+                Console.WriteLine(username); // Resultado: lgonzalez, lgonzalez1, lgonzalez2, etc.
+                var existingUser = await _userRepository.GetByIdentificationAsync(request.Identification);
                 if (existingUser != null)
                 {
                     return new GeneralResponse<CreatedUserResponseDto>
                     {
                         Code = 409,
-                        Message = "El nombre de usuario ya existe. Por favor intente con otro.",
+                        Message = "La identificacion del usuario ya se encuentra registrado. Por favor intente con otro.",
                         Data = null
                     };
                 }
@@ -123,7 +127,7 @@ namespace SIMSEB.Application.Services.Users
                 var user = new User
                 {
                     UserId = Guid.NewGuid(),
-                    Username = request.Username,
+                    Username = username,
                     Name = request.Name,
                     LastName = request.LastName,
                     Identification = request.Identification,

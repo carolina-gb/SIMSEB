@@ -8,7 +8,7 @@ namespace SIMSEB.Application.DTOs.Inbound
 {
     public class CreateUserRequestDto
     {
-        public string Username { get; set; } = null!;
+        //public string Username { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Identification { get; set; } = null!;
