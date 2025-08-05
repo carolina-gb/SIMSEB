@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SIMSEB.Application.DTOs.Inbound;
 using SIMSEB.Application.DTOs.Outbound.Response;
 using SIMSEB.Application.Interfaces.UserManagement;
@@ -59,14 +61,40 @@ namespace SIMSEB.API.Controllers
                 });
             }
         }
-
+        [Authorize]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
         {
             try
             {
+                var authorizationHeader = Request.Headers["Authorization"].FirstOrDefault();
+
+                if (string.IsNullOrEmpty(authorizationHeader))
+                {
+                    return Unauthorized("Token de portador no encontrado.");
+                }
+
+                if (!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Unauthorized("Formato de token no válido. Se espera un token de tipo 'Bearer'.");
+                }
+                var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+                var handler = new JwtSecurityTokenHandler();
+                var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+
+                if (jsonToken == null)
+                {
+                    return Unauthorized();
+                }
+
+                var claims = jsonToken.Claims;
+                var userIdClaim = claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+
+                Guid.TryParse(userIdClaim, out Guid userId);
+
                 var result = await _userManagementService.ChangePasswordAsync(
-                    request.Username,
+                    userId,
                     request.CurrentPassword,
                     request.NewPassword
                 );

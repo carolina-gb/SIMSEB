@@ -65,11 +65,11 @@ namespace SIMSEB.Application.Services.UserManagement
             }
         }
 
-        public async Task<GeneralResponse<string>> ChangePasswordAsync(string username, string currentPassword, string newPassword)
+        public async Task<GeneralResponse<string>> ChangePasswordAsync(Guid userId,string currentPassword, string newPassword)
         {
             try
             {
-                var user = await _userRepository.GetByEmailOrUsernameAsync(username);
+                var user = await _userRepository.GetByIdAsync(userId);
                 if (user == null)
                     return new GeneralResponse<string> { Code = 404, Message = "Usuario no encontrado", Data = null };
 
