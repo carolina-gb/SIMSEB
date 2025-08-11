@@ -16,6 +16,7 @@ namespace SIMSEB.Domain.Interfaces
         Task<Infraction?> GetDetailedByIdAsync(Guid id);
         Task<Infraction?> GetDetailedByNumberAsync(string infractionNumber);
         Task<List<Infraction>> GetAllDetailedAsync();
+        Task<List<Infraction>> GetByFechaAsync(DateTime inicio, DateTime fin);
 
     }
 }

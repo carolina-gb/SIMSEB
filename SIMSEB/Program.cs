@@ -1,26 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using SIMSEB.API.Middleware;
 using SIMSEB.Application.Interfaces.Auth;
+using SIMSEB.Application.Interfaces.Emergency;
+using SIMSEB.Application.Interfaces.Infractions;
+using SIMSEB.Application.Interfaces.Reporting;
 using SIMSEB.Application.Interfaces.Reports;
 using SIMSEB.Application.Interfaces.UserManagement;
 using SIMSEB.Application.Interfaces.Users;
 using SIMSEB.Application.Services.Auth;
+using SIMSEB.Application.Services.Emergency;
+using SIMSEB.Application.Services.Infractions;
+using SIMSEB.Application.Services.Reporting;
+using SIMSEB.Application.Services.Reports;
 using SIMSEB.Application.Services.UserManagement;
 using SIMSEB.Application.Services.Users;
 using SIMSEB.Domain.Interfaces;
+using SIMSEB.Infrastructure.Hubs;
 using SIMSEB.Infrastructure.Persistence;
 using SIMSEB.Infrastructure.Repositories;
 using SIMSEB.Infrastructure.Seeders;
-using SIMSEB.Application.Services.Reports;
-using SIMSEB.Application.Interfaces.Infractions;
-using SIMSEB.Application.Services.Infractions;
 using SIMSEB.Infrastructure.Services;
-using SIMSEB.Infrastructure.Hubs;
-using SIMSEB.Application.Interfaces.Emergency;
-using SIMSEB.Application.Services.Emergency;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,6 +99,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IEmergencyRepository, EmergencyRepository>();
 builder.Services.AddScoped<IEmergencyService, EmergencyService>();
+builder.Services.AddScoped<IReportingService, ReportingService>();
 
 // -----------------------------------------------------------------------------
 // 6. Controllers & Swagger

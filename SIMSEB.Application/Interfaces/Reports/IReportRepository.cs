@@ -23,6 +23,7 @@ namespace SIMSEB.Application.Interfaces.Reports
         Task<Report?> GetByIdAsync(Guid reportId);
         Task UpdateAsync(Report report);
 
+        Task<List<Report>> GetByFechaAsync(DateTime inicio, DateTime fin);
 
     }
 

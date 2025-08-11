@@ -130,6 +130,16 @@ namespace SIMSEB.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Report>> GetByFechaAsync(DateTime inicio, DateTime fin)
+        {
+            return await _context.Reports
+                .Include(r => r.Type)
+                .Include(r => r.Stage)
+                .Where(r => r.CreatedAt >= inicio && r.CreatedAt <= fin)
+                .ToListAsync();
+        }
+
+
     }
 }
 

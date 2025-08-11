@@ -64,5 +64,13 @@ namespace SIMSEB.Infrastructure.Repositories
 
             return await query.CountAsync();
         }
+        public async Task<List<Emergency>> GetByFechaAsync(DateTime inicio, DateTime fin)
+        {
+            return await _context.Emergencies
+                .Include(e => e.Type)
+                .Include(e => e.User)
+                .Where(e => e.CreatedAt >= inicio && e.CreatedAt <= fin)
+                .ToListAsync();
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace SIMSEB.Application.Services.Auth
                     return new GeneralResponse<LoginResponseDto>
                     {
                         Code = 401,
-                        Message = "Usuario no encontrado",
+                        Message = "Usuario o contraseña incorrecta.",
                         Data = null
                     };
                 }
@@ -48,7 +48,7 @@ namespace SIMSEB.Application.Services.Auth
                     return new GeneralResponse<LoginResponseDto>
                     {
                         Code = 401,
-                        Message = "Contraseña incorrecta",
+                        Message = "Usuario o contraseña incorrecta.",
                         Data = null
                     };
                 }

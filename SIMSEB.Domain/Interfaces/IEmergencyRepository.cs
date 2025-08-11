@@ -12,5 +12,6 @@ namespace SIMSEB.Domain.Interfaces
         Task AddAsync(Emergency emergency);
         Task<List<Emergency>> GetAllDetailedAsync(int typeId, Guid userId, int skip, int take);
         Task<int> CountAsync(int typeId, Guid userId);
+        Task<List<Emergency>> GetByFechaAsync(DateTime inicio, DateTime fin);
     }
 }

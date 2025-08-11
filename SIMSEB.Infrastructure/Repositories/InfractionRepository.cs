@@ -86,6 +86,13 @@ namespace SIMSEB.Infrastructure.Repositories
                 .OrderByDescending(i => i.CreatedAt)
                 .ToListAsync();
         }
+        public async Task<List<Infraction>> GetByFechaAsync(DateTime inicio, DateTime fin)
+        {
+            return await _context.Infractions
+                .Include(i => i.Type)
+                .Where(i => i.CreatedAt >= inicio && i.CreatedAt <= fin)
+                .ToListAsync();
+        }
 
     }
 }
