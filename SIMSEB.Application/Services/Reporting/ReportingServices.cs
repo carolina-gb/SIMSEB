@@ -76,10 +76,10 @@ namespace SIMSEB.Application.Services.Reporting
                     {
                         return new ReporteCategoriaDto
                         {
-                            ReportesIngresados = g.Count(r => r.Stage.ShowName.Equals("Ingresado", StringComparison.OrdinalIgnoreCase)),
-                            ReportesEnCurso = g.Count(r => r.Stage.ShowName.Equals("EnCurso", StringComparison.OrdinalIgnoreCase)),
-                            ReportesRechazados = g.Count(r => r.Stage.ShowName.Equals("Rechazado", StringComparison.OrdinalIgnoreCase)),
-                            ReportesAprobados = g.Count(r => r.Stage.ShowName.Equals("Aprobado", StringComparison.OrdinalIgnoreCase))
+                            ReportesIngresados = g.Count(r => r.Stage.Name.Equals("opened", StringComparison.OrdinalIgnoreCase)),
+                            ReportesEnCurso = g.Count(r => r.Stage.Name.Equals("in_course", StringComparison.OrdinalIgnoreCase)),
+                            ReportesRechazados = g.Count(r => r.Stage.Name.Equals("rejected", StringComparison.OrdinalIgnoreCase)),
+                            ReportesAprobados = g.Count(r => r.Stage.Name.Equals("approved", StringComparison.OrdinalIgnoreCase))
                         };
                     });
 
